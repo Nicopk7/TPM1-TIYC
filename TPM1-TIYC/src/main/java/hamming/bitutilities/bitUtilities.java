@@ -139,53 +139,7 @@ public class bitUtilities {
             return output;
         }
 
-        //MATRIZ GENERADORA G
-        public static boolean[][] newMatrizGeneradora(int cantBitsInfo, int cantBitsControl, int bitSetSize){
-
-            //filas = cantBitsInfo
-            //columnas = cantBitsControl
-            boolean[][] matriz = new boolean[cantBitsInfo][cantBitsControl];
-            int j;
-            for(int i=0; i<cantBitsControl; i++){
-                j=0;
-                for (int k=0; k<bitSetSize; k++){
-
-                    //si k+1 es potencia de dos no me interesa
-                    //porque sé que es un bit de control
-                    if(!isPotenciaDeDos(k+1)){
-
-                        //si estoy aca soy
-                        //el bit de información I_j
-                        //me encuentro en la posición k+1
-
-                        //si en la representación binaria de donde me encuentro
-                        //en el digito d_i hay un 1
-                        //matriz[j][i] = true
-                        //else
-                        //matriz[j][i] = false
-
-                        matriz[j][i] = integerToBinary(k+1,cantBitsControl).get(cantBitsControl-i-1);
-                        j++; //esto indica que ahora voy a buscar el siguiente bit de información
-                    }
-                }
-            }
-            return matriz;
-        }
-
-        //MATRIZ DECODIFICADORA H
-        public static boolean[][] newMatrizDecod(int cantBits, int bitsControl){
-            //los numeros del 0 al hamming - 1 en binario, y en espejo
-            boolean[][] matriz = new boolean[cantBits][bitsControl];
-            BitSet numero = new BitSet(bitsControl);
-
-            for(int i=0;i<cantBits;i++){
-                numero = integerToBinary(i+1, bitsControl);
-                for(int j=0;j<bitsControl;j++){
-                    matriz[i][j] = numero.get((bitsControl-1)-j);
-                }
-            }
-            return matriz;
-        }
+        
 
         //FUNCIONES DE DEBUG
         public static void printBitSet(BitSet bitset, int size){
