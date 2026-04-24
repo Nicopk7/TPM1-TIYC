@@ -9,14 +9,8 @@ public class bitUtilities {
             return new Random().nextInt(limiteSup);
         }
 
-        public static double getFraccional(double number){
-            int decimal = (int) number;
-            return number - decimal;
-        }
-
-        public static boolean isPotenciaDeDos(double number){
-            double log = Math.log(number)/Math.log(2);
-            return getFraccional(log) == 0.0;
+        public static boolean isPotenciaDeDos(int n) {
+            return n > 0 && (n & (n - 1)) == 0;
         }
 
         //MANEJO DE BITS
@@ -41,13 +35,6 @@ public class bitUtilities {
             return receptorBits;
         }
 
-        public static BitSet shiftLeft(BitSet bitset, int sizeBitset, int shift){
-
-            for(int i = 0; i < sizeBitset; i++)
-                bitset.set(i, bitset.get(shift+i));
-
-            return bitset;
-        }
 
         public static BitSet integerToBinary(int number, int longitud){
             //retorna bitset de tamaño longitud, con la representacion binaria de number
@@ -126,14 +113,6 @@ public class bitUtilities {
                 bitset.set(i, boo[i]);
 
             return bitset;
-        }
-
-        public static BitSet mirrorBitset(BitSet b, int size){
-            BitSet mirror = new BitSet(size);
-            for(int i = size; i>0; i--){
-                mirror.set(i-1,b.get(size-i));
-            }
-            return mirror;
         }
 
         public static BitSet repartirInfo(BitSet input, int vectorSize){
