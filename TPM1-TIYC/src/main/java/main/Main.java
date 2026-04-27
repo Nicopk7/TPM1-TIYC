@@ -11,7 +11,7 @@ public class Main {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ignored) {}
-            new gui.MainWindow().setVisible(true);
+            new GUI.MainWindow().setVisible(true);
         });
     }
 }
