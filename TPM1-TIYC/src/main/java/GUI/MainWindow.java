@@ -1,4 +1,4 @@
-package gui;
+package GUI;
 
 import hamming.errorUtilities;
 import hamming.Hamming;
@@ -12,19 +12,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Arrays;
 
-/**
- * Ventana principal de la aplicación Hamming.
- *
- * Layout:
- *   ┌─────────────┬──────────────────────────────┐
- *   │  SIDEBAR    │  TOPBAR                       │
- *   │  botones    ├───────────────┬───────────────┤
- *   │             │ Panel izq.    │ Panel der.    │
- *   │             │ (original)    │ (recuperado)  │
- *   │             ├───────────────┴───────────────┤
- *   │             │  LOG                          │
- *   └─────────────┴──────────────────────────────┘
- */
 public class MainWindow extends JFrame {
 
     // =========================================================================
@@ -45,15 +32,13 @@ public class MainWindow extends JFrame {
     private static final Color INFO         = new Color(0x9CDCFE);
     private static final Color MONO_FONT_COLOR = new Color(0xCE9178);
 
-    // =========================================================================
+
     // ESTADO
-    // =========================================================================
     private File archivoActivo    = null;   // archivo cargado (.txt, .HAx, .HEx)
     private int  blockIndexActivo = FileManagement.BLOCK_8;
 
-    // =========================================================================
+
     // COMPONENTES
-    // =========================================================================
     private JLabel    lblArchivoActivo;
     private JLabel    lblTamano;
     private JLabel    lblBloque;
@@ -66,9 +51,7 @@ public class MainWindow extends JFrame {
     // Botones del sidebar (para resaltar el activo)
     private JButton btnHA1, btnHA2, btnHA3;
 
-    // =========================================================================
     // CONSTRUCTOR
-    // =========================================================================
     public MainWindow() {
         super("Hamming Codec — TPM1-TIYC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -85,9 +68,9 @@ public class MainWindow extends JFrame {
         log("Listo. Cargá un archivo .txt para comenzar.", TEXT_MUTED);
     }
 
-    // =========================================================================
+
     // SIDEBAR
-    // =========================================================================
+
     private JPanel buildSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
@@ -129,9 +112,9 @@ public class MainWindow extends JFrame {
         return sidebar;
     }
 
-    // =========================================================================
+
     // ÁREA PRINCIPAL
-    // =========================================================================
+
     private JPanel buildMainArea() {
         JPanel main = new JPanel(new BorderLayout());
         main.setBackground(BG_BASE);
@@ -245,9 +228,7 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
-    // =========================================================================
     // ACCIONES
-    // =========================================================================
 
     private void accionCargar() {
         JFileChooser chooser = new JFileChooser();
@@ -379,9 +360,8 @@ public class MainWindow extends JFrame {
         }
     }
 
-    // =========================================================================
+
     // HELPERS DE UI
-    // =========================================================================
 
     private JLabel sectionLabel(String texto) {
         JLabel lbl = new JLabel(texto);
@@ -404,6 +384,9 @@ public class MainWindow extends JFrame {
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.addActionListener(action);
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
+        btn.setBorderPainted(false);
 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent e) {
@@ -483,9 +466,9 @@ public class MainWindow extends JFrame {
                 ext.equalsIgnoreCase(".HE3");
     }
 
-    // =========================================================================
+
     // ENTRY POINT
-    // =========================================================================
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
