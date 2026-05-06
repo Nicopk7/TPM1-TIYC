@@ -4,7 +4,6 @@ import hamming.errorUtilities;
 import hamming.Hamming;
 import hamming.file_mngmt.FileManagement;
 import huffman.Huffman;
-import huffman.Huffman;
 import huffman.HuffmanUtils;
 
 import javax.swing.*;
@@ -171,32 +170,46 @@ public class MainWindow extends JFrame {
         return bar;
     }
 
-    // ── VISOR DOBLE ───────────────────────────────────────────────────────────
-    private JSplitPane buildViewer() {
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                buildPanelIzquierdo(),
-                buildPanelDerecho());
-        split.setResizeWeight(0.5);
-        split.setDividerSize(1);
-        split.setBackground(BORDER);
-        split.setBorder(null);
-        return split;
-    }
+    // ── VISOR DOBLE CON SCROLL ÚNICO ─────────────────────────────────────────
+    /**
+     * Construye el visor con scroll sincronizado.
+     *
+     * Cada panel tiene su propio JScrollPane pero comparten el mismo
+     * BoundedRangeModel en la barra vertical → se mueven juntos.
+     * Los headers quedan fijos arriba del scroll.
+     * Cada panel ocupa exactamente el 50% del ancho disponible.
+     */
+    private JPanel buildViewer() {
+        JPanel container = new JPanel(new BorderLayout());
+        container.setBackground(BG_BASE);
 
-    private JPanel buildPanelIzquierdo() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(BG_BASE);
+        // ── Headers fijos ────────────────────────────────────────────────────
+        JPanel headers = new JPanel(new GridLayout(1, 2, 1, 0));
+        headers.setBackground(BORDER);
 
-        JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
-        header.setBackground(BG_SURFACE);
-        header.setBorder(new MatteBorder(0, 0, 1, 0, BORDER));
-        JLabel titulo = label("Original", TEXT_PRIMARY, 12);
-        titulo.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
+        JPanel headerIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+        headerIzq.setBackground(BG_SURFACE);
+        headerIzq.setBorder(new MatteBorder(0, 0, 1, 0, BORDER));
+        JLabel tituloIzq = label("Original", TEXT_PRIMARY, 12);
+        tituloIzq.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
         lblTituloIzq = label("—", TEXT_MUTED, 11);
-        header.add(titulo);
-        header.add(lblTituloIzq);
-        panel.add(header, BorderLayout.NORTH);
+        headerIzq.add(tituloIzq);
+        headerIzq.add(lblTituloIzq);
 
+        JPanel headerDir = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+        headerDir.setBackground(BG_SURFACE);
+        headerDir.setBorder(new MatteBorder(0, 0, 1, 0, BORDER));
+        JLabel tituloDir = label("Resultado", TEXT_PRIMARY, 12);
+        tituloDir.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
+        lblTituloDir = label("—", TEXT_MUTED, 11);
+        headerDir.add(tituloDir);
+        headerDir.add(lblTituloDir);
+
+        headers.add(headerIzq);
+        headers.add(headerDir);
+        container.add(headers, BorderLayout.NORTH);
+
+        // ── Áreas de texto ───────────────────────────────────────────────────
         txtIzquierdo = new JTextArea();
         txtIzquierdo.setBackground(BG_BASE);
         txtIzquierdo.setForeground(TEXT_PRIMARY);
@@ -207,14 +220,49 @@ public class MainWindow extends JFrame {
         txtIzquierdo.setWrapStyleWord(true);
         txtIzquierdo.setBorder(new EmptyBorder(12, 14, 12, 14));
 
-        panel.add(darkScroll(txtIzquierdo), BorderLayout.CENTER);
-        return panel;
+        txtDerecho = new JTextPane();
+        txtDerecho.setBackground(BG_BASE);
+        txtDerecho.setForeground(TEXT_PRIMARY);
+        txtDerecho.setCaretColor(TEXT_PRIMARY);
+        txtDerecho.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        txtDerecho.setEditable(false);
+        txtDerecho.setBorder(new EmptyBorder(12, 14, 12, 14));
+
+        // ── Scroll izquierdo ─────────────────────────────────────────────────
+        JScrollPane scrollIzq = new JScrollPane(txtIzquierdo);
+        scrollIzq.setBorder(new MatteBorder(0, 0, 0, 1, BORDER));
+        scrollIzq.getViewport().setBackground(BG_BASE);
+        scrollIzq.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scrollIzq.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // ── Scroll derecho ───────────────────────────────────────────────────
+        JScrollPane scrollDir = new JScrollPane(txtDerecho);
+        scrollDir.setBorder(null);
+        scrollDir.getViewport().setBackground(BG_BASE);
+        scrollDir.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollDir.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // ── Sincronizar barras verticales ────────────────────────────────────
+        // El scroll derecho controla, el izquierdo sigue
+        scrollIzq.getVerticalScrollBar().setModel(
+                scrollDir.getVerticalScrollBar().getModel()
+        );
+
+        // ── Panel que contiene los dos scrolls ───────────────────────────────
+        JPanel paneles = new JPanel(new GridLayout(1, 2, 0, 0));
+        paneles.setBackground(BG_BASE);
+        paneles.add(scrollIzq);
+        paneles.add(scrollDir);
+
+        container.add(paneles, BorderLayout.CENTER);
+        return container;
     }
 
+    @SuppressWarnings("unused")
     private JPanel buildPanelDerecho() {
+        // Mantenido solo para compatibilidad — ya no se usa
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BG_BASE);
-
         JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
         header.setBackground(BG_SURFACE);
         header.setBorder(new MatteBorder(0, 0, 1, 0, BORDER));
