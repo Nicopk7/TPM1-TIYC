@@ -15,19 +15,6 @@ public class bitUtilities {
 
         //MANEJO DE BITS
         public static BitSet concatBits(BitSet receptorBits, BitSet bitsToAppend, int posInicial, int cantidad){
-        /*
-        EJEMPLO DE COMO FUNCIONA, sea:
-
-        recptorBits: 0101       posicionDesde = 4
-        bitsToAppend: 000111    cantidad = 6
-
-        return -> receptorBits = 0101000111
-
-        OBSERVACION 1: Si posición desde no es igual al tamaño de receptorBits, sobreescribira lo que se encuentre en el camino
-            esto puede resultar util para copiar/duplicar/sobreescribir si es necesario
-
-        OBSERVACION 2: no existe nullPointerException
-        */
 
             for(int i = 0; i<cantidad; i++)
                 receptorBits.set(posInicial + i, bitsToAppend.get(i));
@@ -37,8 +24,6 @@ public class bitUtilities {
 
 
         public static BitSet integerToBinary(int number, int longitud){
-            //retorna bitset de tamaño longitud, con la representacion binaria de number
-            //comportamiento inesperado con numeros negativos
             BitSet bitset = new BitSet(longitud);
 
             for(int i = longitud-1; i>=0; i--){
@@ -54,7 +39,6 @@ public class bitUtilities {
         }
 
         public static BitSet octalTo8bits(int ascii){
-            //octal usualmente son los bytes con los que trabajan los Byte buffer[]
             BitSet bitset = new BitSet(8);
 
             if(ascii <0) ascii += 256;
@@ -98,7 +82,6 @@ public class bitUtilities {
         }
 
         public static BitSet bufferToBitset(byte[] buffer, int cantBytes){
-            //transforma lo leido por buffer en bitset de tamaño cantBytes*8
             BitSet bitset = new BitSet(cantBytes*8);
 
             for(int i=0; i<cantBytes; i++)
@@ -116,18 +99,6 @@ public class bitUtilities {
         }
 
         public static BitSet repartirInfo(BitSet input, int vectorSize){
-        /*
-        Por ejemplo en Hamming 16, se trabaja con 11 bits de informacion
-        pero esos 11 bits de informacion hay que distribuirlos en 16bits
-        en las posiciones correspondientes
-
-        en este caso:
-            C C I C I I I C I I I I I I I P
-
-        Entonces esta funcion retorna para este ejemplo
-            0 0 I 0 I I I 0 I I I I I I I 0
-
-        */
             BitSet output = new BitSet(vectorSize);
             int j = 0;
             for(int i=0; i<vectorSize; i++){
@@ -152,18 +123,6 @@ public class bitUtilities {
             System.out.println("");
         }
 
-        public static void printBooleanMatriz(boolean[][] matriz, int filas, int columnas){
-            for (int i = 0; i < filas; i++) {
-                for (int j = 0; j < columnas; j++) {
-                    if(matriz[i][j])
-                        System.out.print("1");
-                    else
-                        System.out.print("0");
-                    System.out.print(" ");
-                }
-                System.out.println("");
-            }
-        }
     }
 
 
