@@ -14,24 +14,10 @@ import java.awt.*;
 import java.io.File;
 import java.util.Map;
 
-/**
- * Ventana principal — Hamming + Huffman integrados.
- *
- * Layout:
- *   ┌─────────────┬──────────────────────────────┐
- *   │  SIDEBAR    │  TOPBAR                       │
- *   │  ARCHIVO    ├───────────────┬───────────────┤
- *   │  HAMMING    │ Panel izq.    │ Panel der.    │
- *   │  HUFFMAN    │ (original)    │ (resultado)   │
- *   │             ├───────────────┴───────────────┤
- *   │             │  LOG                          │
- *   └─────────────┴──────────────────────────────┘
- */
+
 public class MainWindow extends JFrame {
 
-    // =========================================================================
-    // PALETA DARK
-    // =========================================================================
+    // PALETA
     private static final Color BG_BASE       = new Color(0x1E1E1E);
     private static final Color BG_SURFACE    = new Color(0x252526);
     private static final Color BG_ELEVATED   = new Color(0x2D2D2D);
@@ -47,16 +33,13 @@ public class MainWindow extends JFrame {
     private static final Color INFO          = new Color(0x9CDCFE);
     private static final Color GREEN_INFO    = new Color(0x6BBF6B);
 
-    // =========================================================================
+
     // ESTADO
-    // =========================================================================
     private File   archivoActivo    = null;
     private int    blockIndexActivo = FileManagement.BLOCK_8;
     private byte[] bytesOriginal    = null;
 
-    // =========================================================================
     // COMPONENTES
-    // =========================================================================
     private JLabel    lblArchivoActivo;
     private JLabel    lblTamano;
     private JLabel    lblBloque;
@@ -68,11 +51,9 @@ public class MainWindow extends JFrame {
 
     private JButton btnHA1, btnHA2, btnHA3;
 
-    // =========================================================================
     // CONSTRUCTOR
-    // =========================================================================
     public MainWindow() {
-        super("Hamming + Huffman Codec — TPM1-TIYC");
+        super("Hamming + Huffman — TPM1-TIYC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 680);
         setMinimumSize(new Dimension(900, 520));
@@ -86,9 +67,7 @@ public class MainWindow extends JFrame {
         log("Listo. Cargá un archivo para comenzar.", TEXT_MUTED);
     }
 
-    // =========================================================================
     // SIDEBAR
-    // =========================================================================
     private JPanel buildSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
@@ -98,13 +77,11 @@ public class MainWindow extends JFrame {
 
         sidebar.add(Box.createVerticalStrut(16));
 
-        // ── ARCHIVO ──────────────────────────────────────────────────────────
         sidebar.add(sectionLabel("ARCHIVO"));
         sidebar.add(Box.createVerticalStrut(6));
         sidebar.add(sideBtn("Cargar archivo", ACCENT_BLUE, e -> accionCargar()));
         sidebar.add(Box.createVerticalStrut(16));
 
-        // ── HAMMING ───────────────────────────────────────────────────────────
         sidebar.add(sectionLabel("HAMMING"));
         sidebar.add(Box.createVerticalStrut(6));
         btnHA1 = sideBtn("Proteger 8 bits  →  .HA1",      BG_ELEVATED, e -> accionProteger(FileManagement.BLOCK_8));
@@ -123,7 +100,6 @@ public class MainWindow extends JFrame {
         sidebar.add(sideBtn("Desproteger corrigiendo  →  .DCx", BG_ELEVATED, e -> accionDecodificar(true)));
         sidebar.add(Box.createVerticalStrut(16));
 
-        // ── HUFFMAN ───────────────────────────────────────────────────────────
         sidebar.add(sectionLabel("HUFFMAN"));
         sidebar.add(Box.createVerticalStrut(6));
         sidebar.add(sideBtn("Compactar  →  .huf",    ACCENT_GREEN, e -> accionCompactar()));
@@ -136,9 +112,7 @@ public class MainWindow extends JFrame {
         return sidebar;
     }
 
-    // =========================================================================
     // ÁREA PRINCIPAL
-    // =========================================================================
     private JPanel buildMainArea() {
         JPanel main = new JPanel(new BorderLayout());
         main.setBackground(BG_BASE);
@@ -171,19 +145,10 @@ public class MainWindow extends JFrame {
     }
 
     // ── VISOR DOBLE CON SCROLL ÚNICO ─────────────────────────────────────────
-    /**
-     * Construye el visor con scroll sincronizado.
-     *
-     * Cada panel tiene su propio JScrollPane pero comparten el mismo
-     * BoundedRangeModel en la barra vertical → se mueven juntos.
-     * Los headers quedan fijos arriba del scroll.
-     * Cada panel ocupa exactamente el 50% del ancho disponible.
-     */
     private JPanel buildViewer() {
         JPanel container = new JPanel(new BorderLayout());
         container.setBackground(BG_BASE);
 
-        // ── Headers fijos ────────────────────────────────────────────────────
         JPanel headers = new JPanel(new GridLayout(1, 2, 1, 0));
         headers.setBackground(BORDER);
 
@@ -209,7 +174,6 @@ public class MainWindow extends JFrame {
         headers.add(headerDir);
         container.add(headers, BorderLayout.NORTH);
 
-        // ── Áreas de texto ───────────────────────────────────────────────────
         txtIzquierdo = new JTextArea();
         txtIzquierdo.setBackground(BG_BASE);
         txtIzquierdo.setForeground(TEXT_PRIMARY);
@@ -228,27 +192,22 @@ public class MainWindow extends JFrame {
         txtDerecho.setEditable(false);
         txtDerecho.setBorder(new EmptyBorder(12, 14, 12, 14));
 
-        // ── Scroll izquierdo ─────────────────────────────────────────────────
         JScrollPane scrollIzq = new JScrollPane(txtIzquierdo);
         scrollIzq.setBorder(new MatteBorder(0, 0, 0, 1, BORDER));
         scrollIzq.getViewport().setBackground(BG_BASE);
         scrollIzq.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollIzq.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        // ── Scroll derecho ───────────────────────────────────────────────────
         JScrollPane scrollDir = new JScrollPane(txtDerecho);
         scrollDir.setBorder(null);
         scrollDir.getViewport().setBackground(BG_BASE);
         scrollDir.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollDir.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        // ── Sincronizar barras verticales ────────────────────────────────────
-        // El scroll derecho controla, el izquierdo sigue
         scrollIzq.getVerticalScrollBar().setModel(
                 scrollDir.getVerticalScrollBar().getModel()
         );
 
-        // ── Panel que contiene los dos scrolls ───────────────────────────────
         JPanel paneles = new JPanel(new GridLayout(1, 2, 0, 0));
         paneles.setBackground(BG_BASE);
         paneles.add(scrollIzq);
@@ -260,7 +219,6 @@ public class MainWindow extends JFrame {
 
     @SuppressWarnings("unused")
     private JPanel buildPanelDerecho() {
-        // Mantenido solo para compatibilidad — ya no se usa
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BG_BASE);
         JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
@@ -285,7 +243,6 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
-    // ── LOG ───────────────────────────────────────────────────────────────────
     private JPanel buildLogPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BG_SURFACE);
@@ -306,9 +263,7 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
-    // =========================================================================
     // ACCIONES — ARCHIVO
-    // =========================================================================
 
     private void accionCargar() {
         JFileChooser chooser = new JFileChooser();
@@ -343,9 +298,7 @@ public class MainWindow extends JFrame {
         log("Archivo cargado: " + archivoActivo.getName() + " (" + datos.length + " bytes)", SUCCESS);
     }
 
-    // =========================================================================
     // ACCIONES — HAMMING
-    // =========================================================================
 
     private void accionProteger(int blockIndex) {
         if (!verificarArchivoCargado()) return;
@@ -435,9 +388,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    // =========================================================================
     // ACCIONES — HUFFMAN
-    // =========================================================================
 
     private void accionCompactar() {
         if (!verificarArchivoCargado()) return;
@@ -491,7 +442,6 @@ public class MainWindow extends JFrame {
         mostrarTextoDerecho(textoDescomp);
         lblTituloDir.setText(new File(pathDhu).getName());
 
-        // Comparar con original si está cargado
         boolean iguales = bytesOriginal != null &&
                 java.util.Arrays.equals(bytesOriginal, descomprimido);
 
@@ -507,7 +457,6 @@ public class MainWindow extends JFrame {
             log("ERROR: Primero cargá el archivo original (.txt) y compactalo.", DANGER); return;
         }
 
-        // Buscar el .huf correspondiente al original
         String pathHuf = FileManagement.buildHuffmanPath(archivoActivo.getAbsolutePath());
         if (archivoActivo.getName().endsWith(".huf")) {
             pathHuf = archivoActivo.getAbsolutePath();
@@ -528,7 +477,6 @@ public class MainWindow extends JFrame {
                 bytesOriginal, comprimido, descomprimido,
                 textoOriginal, codigos, frecuencias);
 
-        // Mostrar en ventana de diálogo
         JTextArea txtStats = new JTextArea(stats.generarReporte());
         txtStats.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         txtStats.setEditable(false);
@@ -552,9 +500,7 @@ public class MainWindow extends JFrame {
         log(stats.resumenCorto(), GREEN_INFO);
     }
 
-    // =========================================================================
     // MOSTRAR TEXTO EN PANEL DERECHO
-    // =========================================================================
 
     private void mostrarTextoDerecho(String texto) {
         txtDerecho.setText("");
@@ -601,9 +547,7 @@ public class MainWindow extends JFrame {
         txtDerecho.setCaretPosition(0);
     }
 
-    // =========================================================================
     // HELPERS DE UI
-    // =========================================================================
 
     private JLabel sectionLabel(String texto) {
         JLabel lbl = new JLabel(texto);
@@ -704,9 +648,7 @@ public class MainWindow extends JFrame {
         return ext.equalsIgnoreCase(".HE1") || ext.equalsIgnoreCase(".HE2") || ext.equalsIgnoreCase(".HE3");
     }
 
-    // =========================================================================
     // ENTRY POINT
-    // =========================================================================
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {

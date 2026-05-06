@@ -4,21 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/**
- * Maneja toda la lectura/escritura de archivos y la gestión de extensiones.
- *
- * Extensiones del proyecto:
- *   .HA1 / .HA2 / .HA3  → Archivo protegido con Hamming (bloques 8 / 1024 / 16384 bits)
- *   .HE1 / .HE2 / .HE3  → Archivo protegido con errores introducidos
- *   .DE1 / .DE2 / .DE3  → Archivo decodificado CON errores (sin corrección)
- *   .DC1 / .DC2 / .DC3  → Archivo decodificado y CORREGIDO
- */
 public class FileManagement {
 
-    // -------------------------------------------------------------------------
     // Constantes de extensiones
-    // -------------------------------------------------------------------------
-
     public static final String[] EXT_HAMMING = {".HA1", ".HA2", ".HA3"};
     public static final String[] EXT_ERROR = {".HE1", ".HE2", ".HE3"};
     public static final String[] EXT_DEC_ERR = {".DE1", ".DE2", ".DE3"};
@@ -28,24 +16,13 @@ public class FileManagement {
     public static final String EXT_HUFFMAN = ".huf";
     public static final String EXT_HUFFMAN_DEC = ".dhu";
 
-    /**
-     * Índice de bloque: 0 = 8 bits, 1 = 1024 bits, 2 = 16384 bits
-     */
     public static final int BLOCK_8 = 0;
     public static final int BLOCK_1024 = 1;
     public static final int BLOCK_16384 = 2;
 
-    // -------------------------------------------------------------------------
     // Lectura y escritura básica
-    // -------------------------------------------------------------------------
 
-    /**
-     * Lee un archivo completo en modo binario y retorna sus bytes.
-     * Equivalente a fopen(path, "rb") de C.
-     *
-     * @param path Ruta del archivo
-     * @return Array de bytes del archivo, o null si hubo error
-     */
+
     public static byte[] readFile(String path) {
         try {
             return Files.readAllBytes(Paths.get(path));
@@ -55,13 +32,6 @@ public class FileManagement {
         }
     }
 
-    /**
-     * Escribe un array de bytes en un archivo (modo binario).
-     *
-     * @param path      Ruta destino
-     * @param dataBytes Datos a escribir
-     * @return true si la escritura fue exitosa
-     */
     public static boolean writeFile(String path, byte[] dataBytes) {
         try {
             Files.write(Paths.get(path), dataBytes);
@@ -72,45 +42,27 @@ public class FileManagement {
         }
     }
 
-    // -------------------------------------------------------------------------
     // Gestión de extensiones
-    // -------------------------------------------------------------------------
 
-    /**
-     * Quita la extensión de un path y retorna solo el nombre base.
-     * Ejemplo: "C:/docs/texto.txt" → "C:/docs/texto"
-     */
     public static String getBaseName(String path) {
         int dotIndex = path.lastIndexOf('.');
         if (dotIndex == -1) return path;
         return path.substring(0, dotIndex);
     }
 
-    /**
-     * Retorna la extensión de un archivo en mayúsculas.
-     * Ejemplo: "texto.HA1" → ".HA1"
-     */
+
     public static String getExtension(String path) {
         int dotIndex = path.lastIndexOf('.');
         if (dotIndex == -1) return "";
         return path.substring(dotIndex).toUpperCase();
     }
 
-    /**
-     * Construye el path del archivo Hamming protegido.
-     * Ejemplo: "texto.txt", BLOCK_8 → "texto.HA1"
-     *
-     * @param originalPath Path del .txt original
-     * @param blockIndex   BLOCK_8, BLOCK_1024 o BLOCK_16384
-     */
+
     public static String buildHammingPath(String originalPath, int blockIndex) {
         return getBaseName(originalPath) + EXT_HAMMING[blockIndex];
     }
 
-    /**
-     * Construye el path del archivo con errores introducidos.
-     * Ejemplo: "texto.HA1" → "texto.HE1"
-     */
+
     public static String buildErrorPath(String hammingPath) {
         String base = getBaseName(hammingPath);
         int blockIndex = getBlockIndexFromExtension(hammingPath);
@@ -121,10 +73,7 @@ public class FileManagement {
         return base + EXT_ERROR[blockIndex];
     }
 
-    /**
-     * Construye el path del archivo decodificado CON errores (sin corregir).
-     * Ejemplo: "texto.HA1" o "texto.HE1" → "texto.DE1"
-     */
+
     public static String buildDecodedErrorPath(String inputPath) {
         String base = getBaseName(inputPath);
         int blockIndex = getBlockIndexFromExtension(inputPath);
@@ -135,10 +84,7 @@ public class FileManagement {
         return base + EXT_DEC_ERR[blockIndex];
     }
 
-    /**
-     * Construye el path del archivo decodificado y CORREGIDO.
-     * Ejemplo: "texto.HA1" o "texto.HE1" → "texto.DC1"
-     */
+
     public static String buildDecodedCorrectedPath(String inputPath) {
         String base = getBaseName(inputPath);
         int blockIndex = getBlockIndexFromExtension(inputPath);
@@ -149,17 +95,12 @@ public class FileManagement {
         return base + EXT_DEC_CORR[blockIndex];
     }
 
-    /**
-     * Detecta si un path es un archivo Hamming válido (.HAx o .HEx).
-     */
+
     public static boolean isHammingFile(String path) {
         return getBlockIndexFromExtension(path) != -1;
     }
 
-    /**
-     * Retorna el tamaño de bloque en bits según el índice.
-     * 0 → 8, 1 → 1024, 2 → 16384
-     */
+
     public static int getBlockSizeBits(int blockIndex) {
         switch (blockIndex) {
             case BLOCK_8:
@@ -173,19 +114,9 @@ public class FileManagement {
         }
     }
 
-    // -------------------------------------------------------------------------
     // Operaciones de alto nivel (leer y guardar con extensión automática)
-    // -------------------------------------------------------------------------
 
-    /**
-     * Lee un archivo .txt y lo guarda como .HAx con Hamming aplicado.
-     * La codificación real la hace HammingEncoder; este método maneja los paths.
-     *
-     * @param txtPath    Path del archivo .txt fuente
-     * @param blockIndex Tamaño de bloque
-     * @param encoded    Bytes ya codificados por HammingEncoder
-     * @return Path donde se guardó el archivo, o null si falló
-     */
+
     public static String saveHammingFile(String txtPath, int blockIndex, byte[] encoded) {
         String outPath = buildHammingPath(txtPath, blockIndex);
         if (writeFile(outPath, encoded)) {
@@ -195,13 +126,7 @@ public class FileManagement {
         return null;
     }
 
-    /**
-     * Guarda el archivo con errores introducidos (.HEx).
-     *
-     * @param hammingPath Path del .HAx fuente
-     * @param withErrors  Bytes con errores inyectados por ErrorInjector
-     * @return Path donde se guardó, o null si falló
-     */
+
     public static String saveErrorFile(String hammingPath, byte[] withErrors) {
         String outPath = buildErrorPath(hammingPath);
         if (outPath != null && writeFile(outPath, withErrors)) {
@@ -211,9 +136,7 @@ public class FileManagement {
         return null;
     }
 
-    /**
-     * Guarda el archivo decodificado SIN corrección (.DEx).
-     */
+
     public static String saveDecodedError(String inputPath, byte[] decoded) {
         String outPath = buildDecodedErrorPath(inputPath);
         if (outPath != null && writeFile(outPath, decoded)) {
@@ -223,9 +146,7 @@ public class FileManagement {
         return null;
     }
 
-    /**
-     * Guarda el archivo decodificado y CORREGIDO (.DCx).
-     */
+
     public static String saveDecodedCorrected(String inputPath, byte[] decoded) {
         String outPath = buildDecodedCorrectedPath(inputPath);
         if (outPath != null && writeFile(outPath, decoded)) {
@@ -235,14 +156,9 @@ public class FileManagement {
         return null;
     }
 
-    // -------------------------------------------------------------------------
     // Helpers internos
-    // -------------------------------------------------------------------------
 
-    /**
-     * Dado un path con extensión .HA1/.HA2/.HA3/.HE1/.HE2/.HE3/.DE1... etc.,
-     * retorna el índice de bloque (0, 1 o 2), o -1 si no reconoce la extensión.
-     */
+
     private static int getBlockIndexFromExtension(String path) {
         String ext = getExtension(path);
         for (int i = 0; i < 3; i++) {
@@ -254,34 +170,20 @@ public class FileManagement {
     }
 
 
-// -------------------------------------------------------------------------
-// Operaciones Huffman
-// -------------------------------------------------------------------------
 
-    /**
-     * Construye el path del archivo comprimido con Huffman.
-     * Ejemplo: "texto.txt" → "texto.huf"
-     */
+// Operaciones Huffman
+
+
     public static String buildHuffmanPath(String originalPath) {
         return getBaseName(originalPath) + EXT_HUFFMAN;
     }
 
-    /**
-     * Construye el path del archivo descomprimido con Huffman.
-     * Ejemplo: "texto.huf" → "texto.dhu"
-     */
+
     public static String buildHuffmanDecPath(String hufPath) {
         return getBaseName(hufPath) + EXT_HUFFMAN_DEC;
     }
 
-    /**
-     * Guarda el archivo comprimido con Huffman (.huf).
-     * La compresión real la hace HuffmanCodec.encode().
-     *
-     * @param originalPath Path del archivo original
-     * @param compressed   Bytes comprimidos
-     * @return Path donde se guardó, o null si falló
-     */
+
     public static String saveHuffmanFile(String originalPath, byte[] compressed) {
         String outPath = buildHuffmanPath(originalPath);
         if (writeFile(outPath, compressed)) {
@@ -291,13 +193,7 @@ public class FileManagement {
         return null;
     }
 
-    /**
-     * Guarda el archivo descomprimido con Huffman (.dhu).
-     *
-     * @param hufPath      Path del archivo .huf fuente
-     * @param decompressed Bytes descomprimidos
-     * @return Path donde se guardó, o null si falló
-     */
+
     public static String saveHuffmanDecFile(String hufPath, byte[] decompressed) {
         String outPath = buildHuffmanDecPath(hufPath);
         if (writeFile(outPath, decompressed)) {
@@ -307,9 +203,7 @@ public class FileManagement {
         return null;
     }
 
-    /**
-     * Detecta si un path es un archivo Huffman comprimido (.huf).
-     */
+
     public static boolean isHuffmanFile(String path) {
         return getExtension(path).equalsIgnoreCase(EXT_HUFFMAN);
     }

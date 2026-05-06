@@ -2,17 +2,10 @@ package huffman;
 
 import java.util.Map;
 
-/**
- * Estadísticas de compresión Huffman.
- *
- * Genera el reporte comparativo que pide el enunciado:
- *   ORIGINAL vs COMPACTADO vs DESCOMPACTADO
- */
+
 public class HuffmanUtils {
 
-    // =========================================================================
     // MODELO DE DATOS
-    // =========================================================================
 
     public final int    bytesOriginal;
     public final int    bytesComprimido;
@@ -53,36 +46,26 @@ public class HuffmanUtils {
                         java.util.Arrays.equals(bytesOrig, bytesDecomp);
     }
 
-    // =========================================================================
     // REPORTE EN TEXTO — para el log de la GUI
-    // =========================================================================
 
-    /**
-     * Genera el reporte completo de estadísticas como String multilinea.
-     * Se muestra en el panel de log o en una ventana de estadísticas.
-     */
     public String generarReporte() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("══════════════════════════════════════\n");
-        sb.append("  ESTADÍSTICAS DE COMPRESIÓN HUFFMAN  \n");
+        sb.append("  ESTADÍSTICAS DE COMPRESIÓN           \n");
         sb.append("══════════════════════════════════════\n\n");
 
-        // Tamaños
         sb.append(String.format("  Original      : %,d bytes\n", bytesOriginal));
         sb.append(String.format("  Comprimido    : %,d bytes\n", bytesComprimido));
         sb.append(String.format("  Descomprimido : %,d bytes\n\n", bytesDescomprimido));
 
-        // Compresión
         sb.append(String.format("  Reducción     : %.1f%%\n", tasaCompresion));
         sb.append(String.format("  Ratio         : %.2f:1\n\n", ratioCompresion));
 
-        // Verificación
         sb.append("  Descomprimido = Original : ")
                 .append(descomprimidoIgualOriginal ? "SÍ ✓" : "NO ✗")
                 .append("\n\n");
 
-        // Tabla de códigos
         if (codigos != null && !codigos.isEmpty()) {
             sb.append("  TABLA DE CÓDIGOS (top 10 por frecuencia):\n");
             sb.append("  ─────────────────────────────────────────\n");
@@ -113,9 +96,6 @@ public class HuffmanUtils {
         return sb.toString();
     }
 
-    /**
-     * Versión corta para el log inferior de la GUI (una sola línea).
-     */
     public String resumenCorto() {
         return String.format(
                 "Compresión: %,d → %,d bytes (%.1f%% reducción, ratio %.2f:1) | Recuperado: %s",
@@ -124,9 +104,7 @@ public class HuffmanUtils {
         );
     }
 
-    // =========================================================================
     // GETTERS para la GUI (panel de estadísticas visual)
-    // =========================================================================
 
     public Map<Character, String>  getCodigos()     { return codigos; }
     public Map<Character, Integer> getFrecuencias()  { return frecuencias; }
