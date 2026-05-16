@@ -144,7 +144,7 @@ public class MainWindow extends JFrame {
         return bar;
     }
 
-    // ── VISOR DOBLE CON SCROLL ÚNICO ─────────────────────────────────────────
+
     private JPanel buildViewer() {
         JPanel container = new JPanel(new BorderLayout());
         container.setBackground(BG_BASE);
@@ -197,6 +197,7 @@ public class MainWindow extends JFrame {
         scrollIzq.getViewport().setBackground(BG_BASE);
         scrollIzq.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollIzq.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollIzq.setWheelScrollingEnabled(false);
 
         JScrollPane scrollDir = new JScrollPane(txtDerecho);
         scrollDir.setBorder(null);
@@ -204,9 +205,28 @@ public class MainWindow extends JFrame {
         scrollDir.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollDir.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        scrollIzq.getVerticalScrollBar().setModel(
-                scrollDir.getVerticalScrollBar().getModel()
-        );
+        scrollIzq.addMouseWheelListener(e -> {
+            scrollDir.dispatchEvent(SwingUtilities.convertMouseEvent(scrollIzq, e, scrollDir));
+        });
+
+        JScrollBar barIzq = scrollIzq.getVerticalScrollBar();
+        JScrollBar barDir = scrollDir.getVerticalScrollBar();
+
+        boolean[] isSyncing = {false};
+
+        barIzq.addAdjustmentListener(e -> {
+            if (isSyncing[0]) return;
+            isSyncing[0] = true;
+            barDir.setValue(e.getValue());
+            isSyncing[0] = false;
+        });
+
+        barDir.addAdjustmentListener(e -> {
+            if (isSyncing[0]) return;
+            isSyncing[0] = true;
+            barIzq.setValue(e.getValue());
+            isSyncing[0] = false;
+        });
 
         JPanel paneles = new JPanel(new GridLayout(1, 2, 0, 0));
         paneles.setBackground(BG_BASE);
@@ -392,10 +412,10 @@ public class MainWindow extends JFrame {
 
     private void accionCompactar() {
         if (!verificarArchivoCargado()) return;
-        String ext = FileManagement.getExtension(archivoActivo.getAbsolutePath());
+        /*String ext = FileManagement.getExtension(archivoActivo.getAbsolutePath());
         if (!esTexto(ext)) {
             log("ERROR: Solo se puede compactar archivos de texto (.txt, .doc, .wp)", DANGER); return;
-        }
+        }*/
 
         byte[] datos = FileManagement.readFile(archivoActivo.getAbsolutePath());
         if (datos == null) { log("ERROR: No se pudo leer el archivo.", DANGER); return; }
@@ -454,7 +474,7 @@ public class MainWindow extends JFrame {
 
     private void accionVerEstadisticas() {
         if (bytesOriginal == null) {
-            log("ERROR: Primero cargá el archivo original (.txt) y compactalo.", DANGER); return;
+            log("ERROR: Primero cargá el archivo original y compactalo.", DANGER); return;
         }
 
         String pathHuf = FileManagement.buildHuffmanPath(archivoActivo.getAbsolutePath());
@@ -469,13 +489,14 @@ public class MainWindow extends JFrame {
 
         byte[] descomprimido = Huffman.decode(comprimido);
 
-        String textoOriginal = new String(bytesOriginal);
-        Map<Character, String>  codigos     = Huffman.obtenerCodigos(textoOriginal);
-        Map<Character, Integer> frecuencias = Huffman.obtenerFrecuencias(textoOriginal);
+        // 1. Usamos explícitamente los mapas con Byte en lugar de Character
+        Map<Byte, String>  codigos     = Huffman.obtenerCodigos(bytesOriginal);
+        Map<Byte, Integer> frecuencias = Huffman.obtenerFrecuencias(bytesOriginal);
 
+        // 2. Instanciamos HuffmanUtils sin la variable de textoOriginal
         HuffmanUtils stats = new HuffmanUtils(
                 bytesOriginal, comprimido, descomprimido,
-                textoOriginal, codigos, frecuencias);
+                codigos, frecuencias);
 
         JTextArea txtStats = new JTextArea(stats.generarReporte());
         txtStats.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
