@@ -102,13 +102,13 @@ public class HuffmanUtils {
         int[]    valores   = {bytesOriginal, bytesComprimido, bytesDescomprimido};
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < 3; i++) {
+        /*for (int i = 0; i < 3; i++) {
             double porcentaje = (double) valores[i] / maxBytes;
             int    bloques    = (int) Math.round(porcentaje * maxAncho);
             sb.append("  ").append(etiquetas[i]).append("  [");
             sb.append("█".repeat(bloques)).append("░".repeat(maxAncho - bloques)).append("]");
             sb.append(String.format("  %5.1f%%  %,d bytes\n", porcentaje * 100, valores[i]));
-        }
+        }*/
         return sb.toString();
     }
 
