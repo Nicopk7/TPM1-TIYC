@@ -14,19 +14,7 @@ import java.awt.*;
 import java.io.File;
 import java.util.Map;
 
-/**
- * Ventana principal — Hamming + Huffman integrados.
- *
- * Layout:
- *   ┌─────────────┬──────────────────────────────┐
- *   │  SIDEBAR    │  TOPBAR                       │
- *   │  ARCHIVO    ├───────────────┬───────────────┤
- *   │  HAMMING    │ Panel izq.    │ Panel der.    │
- *   │  HUFFMAN    │ (original)    │ (resultado)   │
- *   │             ├───────────────┴───────────────┤
- *   │             │  LOG                          │
- *   └─────────────┴──────────────────────────────┘
- */
+
 public class MainWindow extends JFrame {
 
     // =========================================================================
@@ -175,16 +163,9 @@ public class MainWindow extends JFrame {
         return bar;
     }
 
-    // ── VISOR DOBLE CON SCROLL ÚNICO ─────────────────────────────────────────
-    /**
-     * Construye el visor con scroll sincronizado.
-     *
-     * Cada panel tiene su propio JScrollPane pero comparten el mismo
-     * BoundedRangeModel en la barra vertical → se mueven juntos.
-     * Los headers quedan fijos arriba del scroll.
-     * Cada panel ocupa exactamente el 50% del ancho disponible.
-     */
-    // ── VISOR DOBLE CON SCROLL SIMULTÁNEO MEJORADO ───────────────────────────
+
+
+
     private JPanel buildViewer() {
         JPanel container = new JPanel(new BorderLayout());
         container.setBackground(BG_BASE);

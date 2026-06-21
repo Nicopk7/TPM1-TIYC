@@ -4,33 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
-/**
- * Inyector de errores para archivos Hamming (.HAx).
- *
- * Provee dos modos de inyección:
- *
- *   MODO 1 — Un error máximo por módulo (LAB 1):
- *     - Random si hay error en el módulo
- *     - Random en qué posición
- *
- *   MODO 2 — Hasta dos errores por módulo (LAB 3):
- *     - Random si hay error en el módulo
- *     - Random si son 1 o 2 errores
- *     - Random en qué posiciones (distintas entre sí)
- *
- * También implementa la fecha de apertura:
- *   El archivo .HAx puede llevar embebida una fecha/hora mínima de apertura.
- *   Si la fecha actual no la cumple, desproteger retorna null.
- *
- * ESTRUCTURA DEL ENCABEZADO .HAx:
- *   [0-3]   cantBloques   (int)
- *   [4-7]   totalBitsInfo (int)
- *   [8-11]  fechaApertura en epoch seconds (int, 0 = sin restricción)
- *   [12..]  stream codificado
- *
- * NOTA: el encabezado ahora es de 12 bytes (antes 8).
- *       HammingCodec debe actualizar HEADER_SIZE = 12.
- */
+
 public class errorUtilities {
 
     public static final  int    HEADER_SIZE  = 12; // 3 ints × 4 bytes
@@ -45,15 +19,13 @@ public class errorUtilities {
     }
 
     /**
-     * Introduce máximo UN error por módulo.
-     *
-     * Por cada módulo:
-     *   - Random si hay error (según probabilidad)
-     *   - Random en qué posición del módulo
-     *
-     * @param datos        Bytes del archivo .HAx
-     * @param blockIndex   Tamaño de bloque
-     * @param probabilidad Probabilidad de error por módulo (0.0 a 1.0)
+     Introduce máximo UN error por módulo.
+     Por cada módulo:
+     - Random si hay error (según probabilidad)
+     - Random en qué posición del módulo
+     @param datos        Bytes del archivo .HAx
+     @param blockIndex   Tamaño de bloque
+     @param probabilidad Probabilidad de error por módulo (0.0 a 1.0)
      */
     public static byte[] injectOneError(byte[] datos, int blockIndex, double probabilidad) {
         validarProbabilidad(probabilidad);
@@ -89,20 +61,17 @@ public class errorUtilities {
     }
 
     /**
-     * Introduce hasta DOS errores por módulo, todo aleatorio.
-     *
-     * Por cada módulo:
-     *   1. Random si hay error en el módulo (según probabilidad)
-     *   2. Si hay error: random si son 1 o 2 errores (50/50)
-     *   3. Random en qué posiciones (distintas entre sí)
-     *
-     * Con 2 errores, Hamming los detecta pero NO los puede corregir
-     * (el síndrome da una posición falsa). Por eso el enunciado pide
-     * poder "detectar 2 errores" como modo separado.
-     *
-     * @param datos        Bytes del archivo .HAx
-     * @param blockIndex   Tamaño de bloque
-     * @param probabilidad Probabilidad de que un módulo reciba errores
+      Introduce hasta DOS errores por módulo, todo aleatorio.
+      Por cada módulo:
+     1. Random si hay error en el módulo (según probabilidad)
+     2. Si hay error: random si son 1 o 2 errores (50/50)
+     3. Random en qué posiciones (distintas entre sí)
+      Con 2 errores, Hamming los detecta pero NO los puede corregir
+      (el síndrome da una posición falsa). Por eso el enunciado pide
+      poder "detectar 2 errores" como modo separado.
+      @param datos        Bytes del archivo .HAx
+      @param blockIndex   Tamaño de bloque
+      @param probabilidad Probabilidad de que un módulo reciba errores
      */
     public static byte[] injectUpToTwoErrors(byte[] datos, int blockIndex, double probabilidad) {
         validarProbabilidad(probabilidad);
@@ -155,14 +124,10 @@ public class errorUtilities {
     // =========================================================================
 
     /**
-     * Escribe la fecha de apertura en el encabezado del archivo .HAx.
-     *
-     * La fecha se guarda en los bytes [8-11] como segundos desde el epoch
-     * truncados a int (válido hasta el año 2038, suficiente para el proyecto).
-     *
-     * @param datos          Bytes del archivo .HAx
-     * @param fechaApertura  Fecha/hora mínima para abrir el archivo
-     * @return               Copia del archivo con la fecha embebida
+     Escribe la fecha de apertura en el encabezado del archivo .HAx.
+      @param datos          Bytes del archivo .HAx
+      @param fechaApertura  Fecha/hora mínima para abrir el archivo
+      @return               Copia del archivo con la fecha embebida
      */
     public static byte[] setFechaApertura(byte[] datos, LocalDateTime fechaApertura) {
         if (datos == null || datos.length < HEADER_SIZE) return datos;
@@ -177,10 +142,9 @@ public class errorUtilities {
     }
 
     /**
-     * Verifica si la fecha actual permite abrir el archivo.
-     *
-     * @param datos Bytes del archivo .HAx
-     * @return      true si se puede abrir (fecha actual >= fecha apertura, o sin restricción)
+     Verifica si la fecha actual permite abrir el archivo.
+      @param datos Bytes del archivo .HAx
+      @return      true si se puede abrir (fecha actual >= fecha apertura, o sin restricción)
      */
     public static boolean verificarFechaApertura(byte[] datos) {
         if (datos == null || datos.length < HEADER_SIZE) return true;
@@ -195,8 +159,8 @@ public class errorUtilities {
     }
 
     /**
-     * Retorna la fecha de apertura embebida en el archivo como String legible.
-     * Si no tiene fecha, retorna "Sin restricción".
+      Retorna la fecha de apertura embebida en el archivo como String legible.
+      Si no tiene fecha, retorna "Sin restricción".
      */
     public static String getFechaAperturaString(byte[] datos) {
         if (datos == null || datos.length < HEADER_SIZE) return "Sin restricción";
@@ -214,8 +178,8 @@ public class errorUtilities {
     // =========================================================================
 
     /**
-     * Cuenta cuántos módulos tienen al menos un bit diferente
-     * entre el original y el archivo con errores.
+     Cuenta cuántos módulos tienen al menos un bit diferente
+     entre el original y el archivo con errores.
      */
     public static int contarModulosConError(byte[] original, byte[] conErrores, int blockIndex) {
         if (original == null || conErrores == null) return 0;
@@ -241,8 +205,8 @@ public class errorUtilities {
     }
 
     /**
-     * Cuenta cuántos módulos tienen exactamente 2 errores.
-     * Útil para mostrar en estadísticas del modo doble error.
+     Cuenta cuántos módulos tienen exactamente 2 errores.
+     Útil para mostrar en estadísticas del modo doble error.
      */
     public static int contarModulosConDosErrores(byte[] original, byte[] conErrores, int blockIndex) {
         if (original == null || conErrores == null) return 0;
@@ -269,8 +233,8 @@ public class errorUtilities {
     }
 
     /**
-     * Genera el resumen de errores para el log de la GUI.
-     * Detecta automáticamente si hubo módulos con 2 errores.
+      Genera el resumen de errores para el log de la GUI.
+      Detecta automáticamente si hubo módulos con 2 errores.
      */
     public static String resumenErrores(byte[] original, byte[] conErrores, int blockIndex) {
         int cantBloques  = leerInt(original, 0);
