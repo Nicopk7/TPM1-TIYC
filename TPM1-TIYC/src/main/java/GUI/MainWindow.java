@@ -61,7 +61,7 @@ public class MainWindow extends JFrame {
     // CONSTRUCTOR
     // =========================================================================
     public MainWindow() {
-        super("Hamming + Huffman Codec — TPM1-TIYC");
+        super("Hamming + Huffman — TPM1-TIYC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 680);
         setMinimumSize(new Dimension(900, 520));
@@ -107,7 +107,7 @@ public class MainWindow extends JFrame {
         sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(sideBtn("Introducir 1 error  →  .HEx",     BG_ELEVATED, e -> accionIntroducirErrores(false)));
         sidebar.add(Box.createVerticalStrut(4));
-        sidebar.add(sideBtn("Introducir ≤2 errores  →  .HEx",  BG_ELEVATED, e -> accionIntroducirErrores(true)));
+        sidebar.add(sideBtn("Introducir hasta 2 errores  →  .HEx",  BG_ELEVATED, e -> accionIntroducirErrores(true)));
         sidebar.add(Box.createVerticalStrut(4));
         sidebar.add(sideBtn("Desproteger con errores  →  .DEx", BG_ELEVATED, e -> accionDecodificar(false)));
         sidebar.add(Box.createVerticalStrut(4));
