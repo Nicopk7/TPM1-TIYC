@@ -40,7 +40,7 @@ public class Huffman {
         // Trabajamos con arreglos de bytes directamente
         Map<Byte, Integer> frecuencias = contarFrecuencias(datos);
 
-        // Si el archivo está compuesto de un solo byte repetido, creamos un nodo "dummy" para que funcione el árbol
+        // Si el archivo está compuesto de un solo byte repetido, creamos un nodo extra para que funcione el árbol
         if (frecuencias.size() == 1) {
             byte unico = frecuencias.keySet().iterator().next();
             frecuencias.put((byte)(unico == 0 ? 1 : 0), 0);
@@ -89,7 +89,6 @@ public class Huffman {
             HuffmanNode raiz   = construirArbol(frecuencias);
             HuffmanNode actual = raiz;
 
-            // Usamos un ByteArrayOutputStream en lugar de StringBuilder para almacenar el binario reconstruido
             ByteArrayOutputStream resultado = new ByteArrayOutputStream();
 
             int totalBytes = streamBytes.length;

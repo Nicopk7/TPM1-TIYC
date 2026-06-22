@@ -4,7 +4,6 @@ import java.util.Random;
 
 public class bitUtilities {
 
-        //MATEMATICAS
         public static int randomInt(int limiteSup){
             return new Random().nextInt(limiteSup);
         }
@@ -13,7 +12,6 @@ public class bitUtilities {
             return n > 0 && (n & (n - 1)) == 0;
         }
 
-        //MANEJO DE BITS
         public static BitSet concatBits(BitSet receptorBits, BitSet bitsToAppend, int posInicial, int cantidad){
 
             for(int i = 0; i<cantidad; i++)
@@ -112,7 +110,7 @@ public class bitUtilities {
 
         
 
-        //FUNCIONES DE DEBUG
+
         public static void printBitSet(BitSet bitset, int size){
             for(int i = 0; i<size; i++){
                 if(bitset.get(i))

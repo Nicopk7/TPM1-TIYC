@@ -8,21 +8,15 @@ public class LectorDocumentos {
 
     private static final Tika tika = new Tika();
 
-    /**
-     * Extrae el texto limpio de cualquier archivo soportado para mostrarlo en la GUI.
-     * @param nombreOriginal El nombre base del archivo (ej: "documento.pdf")
-     * @param datosCrudos Los bytes decodificados listos para leerse
-     */
+
     public static String extraerTextoParaVista(String nombreOriginal, byte[] datosCrudos) {
         String lower = nombreOriginal.toLowerCase();
 
         try {
-            // Si es TXT, leemos los bytes directamente sin Tika
             if (lower.endsWith(".txt")) {
                 return new String(datosCrudos);
             }
 
-            // Si es un documento complejo, delegamos a Tika leyendo desde memoria
             if (esFormatoSoportado(lower)) {
                 try (InputStream is = new ByteArrayInputStream(datosCrudos)) {
                     return tika.parseToString(is);
@@ -36,9 +30,6 @@ public class LectorDocumentos {
         return "[archivo binario — " + datosCrudos.length + " bytes]";
     }
 
-    /**
-     * Verifica si la extensión corresponde a un documento de texto legible por la UI.
-     */
     public static boolean esFormatoSoportado(String nombre) {
         String lower = nombre.toLowerCase();
         return lower.endsWith(".txt") || lower.endsWith(".doc") ||

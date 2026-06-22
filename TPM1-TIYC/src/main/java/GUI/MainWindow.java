@@ -18,9 +18,7 @@ import java.util.Map;
 
 public class MainWindow extends JFrame {
 
-    // =========================================================================
     // PALETA DARK
-    // =========================================================================
     private static final Color BG_BASE       = new Color(0x1E1E1E);
     private static final Color BG_SURFACE    = new Color(0x252526);
     private static final Color BG_ELEVATED   = new Color(0x2D2D2D);
@@ -36,17 +34,16 @@ public class MainWindow extends JFrame {
     private static final Color INFO          = new Color(0x9CDCFE);
     private static final Color GREEN_INFO    = new Color(0x6BBF6B);
 
-    // =========================================================================
+
     // ESTADO
-    // =========================================================================
+
     private File   archivoActivo    = null;
     private int    blockIndexActivo = FileManagement.BLOCK_8;
     private byte[] bytesOriginal    = null;
     private byte[] bytesAntesDeCompactar = null;
 
-    // =========================================================================
     // COMPONENTES
-    // =========================================================================
+
     private JLabel    lblArchivoActivo;
     private JLabel    lblTamano;
     private JLabel    lblBloque;
@@ -58,9 +55,7 @@ public class MainWindow extends JFrame {
 
     private JButton btnHA1, btnHA2, btnHA3;
 
-    // =========================================================================
     // CONSTRUCTOR
-    // =========================================================================
     public MainWindow() {
         super("Hamming + Huffman — TPM1-TIYC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -76,9 +71,8 @@ public class MainWindow extends JFrame {
         log("Listo. Cargá un archivo para comenzar.", TEXT_MUTED);
     }
 
-    // =========================================================================
+
     // SIDEBAR
-    // =========================================================================
     private JPanel buildSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
@@ -129,9 +123,7 @@ public class MainWindow extends JFrame {
         return sidebar;
     }
 
-    // =========================================================================
     // ÁREA PRINCIPAL
-    // =========================================================================
     private JPanel buildMainArea() {
         JPanel main = new JPanel(new BorderLayout());
         main.setBackground(BG_BASE);
@@ -253,7 +245,7 @@ public class MainWindow extends JFrame {
         return container;
     }
 
-    // ── LOG ───────────────────────────────────────────────────────────────────
+    // ── LOG ─────────────────
     private JPanel buildLogPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BG_SURFACE);
@@ -274,9 +266,8 @@ public class MainWindow extends JFrame {
         return panel;
     }
 
-    // =========================================================================
+
     // ACCIONES — ARCHIVO
-    // =========================================================================
 
     private void accionCargar() {
         JFileChooser chooser = new JFileChooser();
@@ -285,27 +276,16 @@ public class MainWindow extends JFrame {
                 "Archivos compatibles",
                 // Documentos fuente
                 "txt", "doc", "docx", "wp", "pdf",
-                // Hamming codificado
                 "HA1", "HA2", "HA3",
-                // Hamming con 1 error
                 "HE1", "HE2", "HE3",
-                // Hamming con 2 errores
                 "H21", "H22", "H23",
-                // Hamming desprotegido con errores
                 "DE1", "DE2", "DE3",
-                // Hamming desprotegido corregido
                 "DC1", "DC2", "DC3",
-                // Huffman comprimido / descomprimido
                 "huf", "dhu",
-                // Pipeline Huffman+Hamming protegido
                 "PH1", "PH2", "PH3",
-                // Pipeline con error simple
                 "PE1", "PE2", "PE3",
-                // Pipeline con doble error
                 "P21", "P22", "P23",
-                // Pipeline desprotegido (aún comprimido)
                 "PD1", "PD2", "PD3",
-                // Archivo final recuperado
                 "rec"
         ));
         if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
@@ -337,9 +317,9 @@ public class MainWindow extends JFrame {
         log("Archivo cargado: " + archivoActivo.getName() + " (" + datos.length + " bytes)", SUCCESS);
     }
 
-    // =========================================================================
+
     // ACCIONES — HAMMING
-    // =========================================================================
+
 
     private void accionProteger(int blockIndex) {
         if (!verificarArchivoCargado()) return;
@@ -495,21 +475,16 @@ public class MainWindow extends JFrame {
         File fSalida = new File(pathSalida);
         lblTituloDir.setText(fSalida.getName());
 
-        // ── Actualizar archivo activo al resultado del decode ─────────────────
         archivoActivo = fSalida;
         lblArchivoActivo.setText(archivoActivo.getName());
         lblTamano.setText(decodificado.length + " bytes");
 
-        // --- VISUALIZACIÓN ---
-        // Reconstruir el nombre base del archivo original (sin extensiones Hamming ni Huffman)
-        // ej: "documento.txt.huf.HA1" → base "documento.txt.huf" → baseName sin .huf = "documento.txt"
         String baseConHuf = FileManagement.getBaseName(fSalida.getName()); // quita .DC1/.DE1
         String baseName;
         if (baseConHuf.toLowerCase().endsWith(".huf")) {
-            // Pipeline Huffman+Hamming: el nombre real está debajo del .huf
-            baseName = FileManagement.getBaseName(baseConHuf); // quita .huf → "documento.txt"
+            baseName = FileManagement.getBaseName(baseConHuf);
         } else {
-            baseName = baseConHuf; // flujo simple Hamming directo
+            baseName = baseConHuf;
         }
 
         if (bytesOriginal != null && LectorDocumentos.esFormatoSoportado(baseName)) {
@@ -517,8 +492,7 @@ public class MainWindow extends JFrame {
             lblTituloIzq.setText("Original (Referencia)");
         }
 
-        // Panel derecho: si viene del pipeline Huffman+Hamming, los bytes decodificados
-        // son Huffman-comprimidos, no texto legible todavía.
+
         boolean esPipelineHuffmanHamming = baseConHuf.toLowerCase().endsWith(".huf");
 
         if (esPipelineHuffmanHamming) {
@@ -548,9 +522,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    // =========================================================================
     // ACCIONES — HUFFMAN
-    // =========================================================================
 
     private void accionCompactar() {
         if (!verificarArchivoCargado()) return;
@@ -586,10 +558,6 @@ public class MainWindow extends JFrame {
         String pathActual   = archivoActivo.getAbsolutePath();
         String nombreActual = archivoActivo.getName();
 
-        // ── Detectar tipo de entrada ──────────────────────────────────────────
-        // Caso A: .huf directo               → flujo simple Huffman
-        // Caso B: .huf.DCx (corregido)       → pipeline OK, datos limpios
-        // Caso C: .huf.DEx / .huf.H2x (con errores sin corregir) → datos posiblemente corruptos
         boolean esHufDirecto   = pathActual.toLowerCase().endsWith(".huf");
         String  baseDecodif    = FileManagement.getBaseName(nombreActual);
         boolean esDecodifDeHuf = !esHufDirecto && baseDecodif.toLowerCase().endsWith(".huf");
@@ -599,7 +567,6 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        // Detectar si el archivo tiene errores sin corregir
         String extActual        = FileManagement.getExtension(nombreActual);
         boolean tieneErrores    = esArchivoConError(extActual)
                 || esArchivoConDobleError(nombreActual)
@@ -625,7 +592,6 @@ public class MainWindow extends JFrame {
 
         byte[] descomprimido = Huffman.decode(datos);
 
-        // ── Calcular ruta de salida ───────────────────────────────────────────
         String baseReal;
         if (esDecodifDeHuf) {
             baseReal = FileManagement.getBaseName(FileManagement.getBaseName(pathActual));
@@ -634,7 +600,6 @@ public class MainWindow extends JFrame {
         }
         String nombreReal = new File(baseReal).getName(); // ej: "documento.txt"
 
-        // ── Huffman falló completamente por la corrupción ─────────────────────
         if (descomprimido == null) {
             if (tieneErrores) {
                 log("Descompresión FALLIDA: los errores corrompieron la estructura Huffman de manera irreparable.", DANGER);
@@ -651,7 +616,6 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        // ── Guardar resultado ─────────────────────────────────────────────────
         String pathDhu     = baseReal + ".dhu";
         boolean guardadoOk = FileManagement.writeFile(pathDhu, descomprimido);
         if (!guardadoOk) { log("ERROR: No se pudo guardar el archivo descomprimido.", DANGER); return; }
@@ -664,7 +628,7 @@ public class MainWindow extends JFrame {
         log("Archivo descompactado: " + archivoActivo.getName() + " (" + descomprimido.length + " bytes)",
                 tieneErrores ? WARNING : GREEN_INFO);
 
-        // ── Verificación de integridad ────────────────────────────────────────
+
         if (bytesOriginal != null) {
             boolean igualesAlOriginal = java.util.Arrays.equals(bytesOriginal, descomprimido);
             log("Recuperado igual al archivo original: " + (igualesAlOriginal ? "SÍ ✓" : "NO ✗ (hay diferencias por errores no corregidos)"),
@@ -674,7 +638,6 @@ public class MainWindow extends JFrame {
             log("Descomprimido igual a la entrada de Huffman: " + iguales, iguales ? SUCCESS : DANGER);
         }
 
-        // ── Visualización ─────────────────────────────────────────────────────
         if (LectorDocumentos.esFormatoSoportado(nombreReal)) {
             if (bytesOriginal != null) {
                 mostrarTextoIzquierdo(LectorDocumentos.extraerTextoParaVista(nombreReal, bytesOriginal));
@@ -694,19 +657,15 @@ public class MainWindow extends JFrame {
         }
     }
 
-    // =========================================================================
     // ESTADÍSTICAS HAMMING
-    // =========================================================================
     private void accionVerEstadisticasHamming() {
         if (!verificarArchivoCargado()) return;
 
-        // ── Recopilar datos del archivo activo ────────────────────────────────
         byte[] datos = FileManagement.readFile(archivoActivo.getAbsolutePath());
         if (datos == null) { log("ERROR: No se pudo leer el archivo.", DANGER); return; }
 
         String ext = FileManagement.getExtension(archivoActivo.getName());
 
-        // Determinar si el archivo activo tiene estructura Hamming (encabezado de 12 bytes)
         boolean tieneEstructuraHamming =
                 esArchivoHamming(ext) || esArchivoConError(ext) || esArchivoConDobleError(archivoActivo.getName());
 
@@ -715,7 +674,6 @@ public class MainWindow extends JFrame {
             return;
         }
 
-        // ── Leer encabezado Hamming ───────────────────────────────────────────
         int cantBloques   = leerIntDesde(datos, 0);
         int totalBitsInfo = leerIntDesde(datos, 4);
         int tamBloque     = Hamming.getTamBloque(blockIndexActivo);
@@ -730,19 +688,16 @@ public class MainWindow extends JFrame {
         double eficiencia = (double) bitsInfo / tamBloque * 100;
         double redundancia= (double) bitsControl / tamBloque * 100;
 
-        // ── Estadísticas de errores (si hay archivo original en memoria) ──────
         String seccionErrores = "";
         if (bytesOriginal != null) {
-            // Intentar encontrar el archivo .HEx correspondiente
             String pathHE = FileManagement.buildErrorPath(archivoActivo.getAbsolutePath());
             byte[] conErrores = (pathHE != null) ? FileManagement.readFile(pathHE) : null;
 
             if (conErrores == null && (esArchivoConError(ext) || esArchivoConDobleError(archivoActivo.getName()))) {
-                conErrores = datos; // el archivo activo ya ES el archivo con errores
+                conErrores = datos;
             }
 
             if (conErrores != null) {
-                // Necesitamos el .HAx original para comparar
                 String pathHA = FileManagement.buildHammingPath(
                         FileManagement.getBaseName(archivoActivo.getAbsolutePath()), blockIndexActivo);
                 byte[] hammingOriginal = FileManagement.readFile(pathHA);
@@ -768,7 +723,6 @@ public class MainWindow extends JFrame {
             }
         }
 
-        // ── Tabla comparativa de bloques ──────────────────────────────────────
         StringBuilder tablaComparativa = new StringBuilder();
         tablaComparativa.append("\n  COMPARATIVA ENTRE TAMAÑOS DE BLOQUE\n");
         tablaComparativa.append("  ──────────────────────────────────────────────────────────\n");
@@ -784,14 +738,12 @@ public class MainWindow extends JFrame {
             int bi  = Hamming.getBitsInfo(bloques[i]);
             double ef  = (double) bi / tb * 100;
             double red = (double) bc / tb * 100;
-            // Overhead teórico respecto a los bits de info
             double oh  = (double) bc / bi * 100;
             String marca = (bloques[i] == blockIndexActivo) ? " ◄" : "";
             tablaComparativa.append(String.format("  %-10s  %-8d  %-8d  %-8.2f  %-10.2f  %-10.2f%s\n",
                     nombres[i], bi, bc, ef, red, oh, marca));
         }
 
-        // ── Construir reporte completo ────────────────────────────────────────
         String fechaStr = errorUtilities.getFechaAperturaString(datos);
 
         String reporte = String.format(
@@ -834,7 +786,6 @@ public class MainWindow extends JFrame {
         reporte += tablaComparativa.toString();
         reporte += "══════════════════════════════════════════════\n";
 
-        // ── Mostrar en diálogo ────────────────────────────────────────────────
         JTextArea txtStats = new JTextArea(reporte);
         txtStats.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         txtStats.setEditable(false);
@@ -858,7 +809,6 @@ public class MainWindow extends JFrame {
         log("Estadísticas Hamming mostradas para: " + archivoActivo.getName(), INFO);
     }
 
-    // Helper para leer un int big-endian desde un byte[]
     private int leerIntDesde(byte[] datos, int offset) {
         return ((datos[offset]     & 0xFF) << 24)
                 | ((datos[offset + 1] & 0xFF) << 16)
@@ -918,9 +868,7 @@ public class MainWindow extends JFrame {
         log(stats.resumenCorto(), GREEN_INFO);
     }
 
-    // =========================================================================
     // MOSTRAR TEXTO EN PANEL DERECHO
-    // =========================================================================
     private void mostrarTextoIzquierdo(String texto) {
         txtIzquierdo.setText("");
         StyledDocument doc = txtIzquierdo.getStyledDocument();
@@ -982,9 +930,7 @@ public class MainWindow extends JFrame {
         txtDerecho.setCaretPosition(0);
     }
 
-    // =========================================================================
     // HELPERS DE UI
-    // =========================================================================
 
     private JLabel sectionLabel(String texto) {
         JLabel lbl = new JLabel(texto);
@@ -1077,9 +1023,7 @@ public class MainWindow extends JFrame {
                 upper.contains(".P21") || upper.contains(".P22") || upper.contains(".P23");
     }
 
-    // =========================================================================
     // ENTRY POINT
-    // =========================================================================
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {

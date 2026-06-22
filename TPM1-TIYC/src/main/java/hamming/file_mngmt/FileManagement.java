@@ -6,31 +6,28 @@ import java.nio.file.Paths;
 
 public class FileManagement {
 
-    // ── Extensiones Hamming ──────────────────────────────────────────────────
     public static final String[] EXT_HAMMING   = {".HA1", ".HA2", ".HA3"};
     public static final String[] EXT_ERROR     = {".HE1", ".HE2", ".HE3"};
     public static final String[] EXT_ERROR2    = {".H21", ".H22", ".H23"}; // 2 errores por bloque
     public static final String[] EXT_DEC_ERR   = {".DE1", ".DE2", ".DE3"};
     public static final String[] EXT_DEC_CORR  = {".DC1", ".DC2", ".DC3"};
 
-    // ── Extensiones Huffman ──────────────────────────────────────────────────
     public static final String EXT_HUFFMAN     = ".huf";
     public static final String EXT_HUFFMAN_DEC = ".dhu";
 
-    // ── Extensiones Lab 3: pipeline Huffman → Hamming ────────────────────────
-    // Archivo comprimido Huffman y luego protegido con Hamming
+
     public static final String[] EXT_HUF_HAM  = {".PH1", ".PH2", ".PH3"}; // Protected Huffman
     public static final String[] EXT_HUF_ERR  = {".PE1", ".PE2", ".PE3"}; // con error simple
     public static final String[] EXT_HUF_ERR2 = {".P21", ".P22", ".P23"}; // con doble error
     public static final String[] EXT_HUF_DEC  = {".PD1", ".PD2", ".PD3"}; // desprotegido (sin decomp)
     public static final String   EXT_HUF_FINAL = ".rec";                   // recuperado final
 
-    // ── Índices de bloque ────────────────────────────────────────────────────
+
     public static final int BLOCK_8     = 0;
     public static final int BLOCK_1024  = 1;
     public static final int BLOCK_16384 = 2;
 
-    // ── Lectura / escritura básica ────────────────────────────────────────────
+
 
     public static byte[] readFile(String path) {
         try { return Files.readAllBytes(Paths.get(path)); }
@@ -42,7 +39,6 @@ public class FileManagement {
         catch (IOException e) { System.out.println("Error al escribir: " + e.getMessage()); return false; }
     }
 
-    // ── Helpers de nombres ────────────────────────────────────────────────────
 
     public static String getBaseName(String path) {
         int dot = path.lastIndexOf('.');
@@ -54,7 +50,6 @@ public class FileManagement {
         return dot == -1 ? "" : path.substring(dot).toUpperCase();
     }
 
-    // ── Hamming paths ─────────────────────────────────────────────────────────
 
     public static String buildHammingPath(String orig, int blockIndex) {
         return getBaseName(orig) + EXT_HAMMING[blockIndex];
@@ -95,7 +90,6 @@ public class FileManagement {
         }
     }
 
-    // ── Hamming save helpers ──────────────────────────────────────────────────
 
     public static String saveHammingFile(String txtPath, int blockIndex, byte[] encoded) {
         String out = buildHammingPath(txtPath, blockIndex);
@@ -122,7 +116,6 @@ public class FileManagement {
         return (out != null && writeFile(out, decoded)) ? out : null;
     }
 
-    // ── Huffman paths / helpers ───────────────────────────────────────────────
 
     public static String buildHuffmanPath(String orig) {
         return getBaseName(orig) + EXT_HUFFMAN;
@@ -146,7 +139,6 @@ public class FileManagement {
         return getExtension(path).equalsIgnoreCase(EXT_HUFFMAN);
     }
 
-    // ── Lab3: pipeline Huffman+Hamming paths ─────────────────────────────────
 
     public static String buildPipelineHamPath(String orig, int blockIndex) {
         return getBaseName(orig) + EXT_HUF_HAM[blockIndex];
@@ -185,7 +177,6 @@ public class FileManagement {
         return -1;
     }
 
-    // ── Helper interno ────────────────────────────────────────────────────────
 
     private static int getBlockIndexFromExtension(String path) {
         String ext = getExtension(path);

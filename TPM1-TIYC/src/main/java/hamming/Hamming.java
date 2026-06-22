@@ -5,10 +5,8 @@ import hamming.file_mngmt.FileManagement;
 
 public class Hamming {
 
-    // =========================================================================
-    // CONSTANTES DE CONFIGURACIÓN
-    // =========================================================================
 
+    // CONSTANTES DE CONFIGURACIÓN
     public static final int TAM_BLOQUE_8     = 8;
     public static final int TAM_BLOQUE_1024  = 1024;
     public static final int TAM_BLOQUE_16384 = 16384;
@@ -21,9 +19,7 @@ public class Hamming {
     public static final int INFO_1024  = TAM_BLOQUE_1024  - CTRL_1024;   // 1013
     public static final int INFO_16384 = TAM_BLOQUE_16384 - CTRL_16384;  // 16369
 
-    // =========================================================================
     // ENCODE
-    // =========================================================================
 
     public static byte[] encode(byte[] datos, int blockIndex) {
 
@@ -48,15 +44,12 @@ public class Hamming {
             for (int i = 0; i < bitsDisponibles; i++) {
                 bloqueInfo[i] = streamInfo[b * bitsInfo + i];
             }
-            // bits restantes quedan en 0 (padding)
 
-            // 2. Distribuir info en posiciones no-paridad del bloque Hamming
             int[] bloqueHamming = repartirInfo(bloqueInfo, tamBloque);
 
-            // 3. Calcular paridades por XOR directo
+
             calcularParidades(bloqueHamming, tamBloque, bitsControl);
 
-            // 4. Copiar bloque al stream de salida
             System.arraycopy(bloqueHamming, 0, streamCodificado, b * tamBloque, tamBloque);
         }
 
@@ -84,9 +77,7 @@ public class Hamming {
         return resultado;
     }
 
-    // =========================================================================
     // DECODE
-    // =========================================================================
 
     public static byte[] decode(byte[] datos, int blockIndex, boolean corregir, int cantBytesOriginal) {
 
@@ -99,7 +90,7 @@ public class Hamming {
                 | ((datos[2] & 0xFF) <<  8) |  (datos[3] & 0xFF);
         int totalBitsInfo = ((datos[4] & 0xFF) << 24) | ((datos[5] & 0xFF) << 16)
                 | ((datos[6] & 0xFF) <<  8) |  (datos[7] & 0xFF);
-        // fechaApertura en bytes [8-11] — verificada por ErrorInjector.verificarFechaApertura()
+        // fechaApertura en bytes [8-11] — verificada por ErrorInjector
 
         // Stream real: saltar los 12 bytes del encabezado
         byte[] streamSinHeader = new byte[datos.length - 12];
@@ -109,33 +100,23 @@ public class Hamming {
         int[] streamRecuperado = new int[cantBloques * bitsInfo];
 
         for (int b = 0; b < cantBloques; b++) {
-
-            // 1. Extraer bloque completo
             int[] bloque = new int[tamBloque];
             System.arraycopy(streamCodificado, b * tamBloque, bloque, 0, tamBloque);
-
-            // 2. Calcular síndrome
             int sindrome = calcularSindrome(bloque, tamBloque, bitsControl);
-
-            // 3. Corregir si corresponde
             if (corregir && sindrome != 0) {
-                int posError = sindrome - 1; // síndrome es 1-based, array es 0-based
+                int posError = sindrome - 1;
                 if (posError < tamBloque) {
-                    bloque[posError] ^= 1;   // flip del bit erróneo
+                    bloque[posError] ^= 1;
                 }
             }
 
-            // 4. Extraer solo bits de información
             int[] soloInfo = extraerInfo(bloque, tamBloque, bitsInfo);
 
-            // 5. Agregar al stream recuperado
             System.arraycopy(soloInfo, 0, streamRecuperado, b * bitsInfo, bitsInfo);
         }
 
         byte[] resultado = bitsToBytes(streamRecuperado);
 
-        // Recortar padding usando totalBitsInfo del encabezado (fuente de verdad)
-        // Esto elimina los bits de relleno del último bloque con exactitud.
         int bytesReales = (int) Math.ceil((double) totalBitsInfo / 8);
         if (bytesReales > 0 && bytesReales <= resultado.length) {
             byte[] recortado = new byte[bytesReales];
@@ -146,23 +127,16 @@ public class Hamming {
         return resultado;
     }
 
-    // =========================================================================
     // LÓGICA HAMMING
-    // =========================================================================
 
-    /**
-     @param info      bits de información (indexados desde 0)
-     @param tamBloque tamaño total del bloque Hamming
-     @return          array de tamBloque bits con info distribuida
-     */
+
     private static int[] repartirInfo(int[] info, int tamBloque) {
         int[] bloque = new int[tamBloque];
         int j = 0;
         for (int i = 0; i < tamBloque && j < info.length; i++) {
-            if (!esPotenciaDeDos(i + 1)) {  // posición 1-based
+            if (!esPotenciaDeDos(i + 1)) {
                 bloque[i] = info[j++];
             }
-            // posiciones de paridad quedan en 0
         }
         return bloque;
     }
@@ -175,9 +149,9 @@ public class Hamming {
 
             int xor = 0;
             for (int pos = 1; pos <= tamBloque; pos++) {
-                if (pos == posParidad) continue;  // excluir la paridad misma
+                if (pos == posParidad) continue;
                 if ((pos & posParidad) != 0) {
-                    xor ^= bloque[pos - 1];       // pos-1: 1-based a 0-based
+                    xor ^= bloque[pos - 1];
                 }
             }
             bloque[posParidad - 1] = xor;
@@ -214,14 +188,9 @@ public class Hamming {
         return info;
     }
 
-    // =========================================================================
     // CONVERSIÓN bytes ↔ bits
-    // =========================================================================
 
-    /**
-      Convierte un array de bytes a un array de bits (int[] con 0s y 1s).
-      MSB primero dentro de cada byte.
-     */
+
     private static int[] bytesToBits(byte[] datos) {
         int[] bits = new int[datos.length * 8];
         for (int i = 0; i < datos.length; i++) {
@@ -233,10 +202,7 @@ public class Hamming {
         return bits;
     }
 
-    /**
-     Convierte un array de bits (int[] con 0s y 1s) a bytes.
-     Rellena con 0s si la longitud no es múltiplo de 8.
-     */
+
     private static byte[] bitsToBytes(int[] bits) {
         int cantBytes = (int) Math.ceil((double) bits.length / 8);
         byte[] datos  = new byte[cantBytes];
@@ -253,11 +219,9 @@ public class Hamming {
         return datos;
     }
 
-    // =========================================================================
-    // HELPERS
-    // =========================================================================
 
-    /** Detecta si n es potencia de 2 usando enmascaramiento. */
+    // HELPERS
+
     private static boolean esPotenciaDeDos(int n) {
         return n > 0 && (n & (n - 1)) == 0;
     }

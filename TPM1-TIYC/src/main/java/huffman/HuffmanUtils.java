@@ -13,7 +13,6 @@ public class HuffmanUtils {
     public final double  ratioCompresion;
     public final boolean descomprimidoIgualOriginal;
 
-    // AHORA LAS MAPAS USAN BYTE
     private final Map<Byte, String>  codigos;
     private final Map<Byte, Integer> frecuencias;
     private final byte[]             bytesOriginalData;
